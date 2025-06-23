@@ -30,20 +30,35 @@ public class UserService {
     }
 
     public User createUser(String username, String email, String password, String firstName, String lastName) {
-        if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already exists");
+        // Validate input parameters
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
         }
 
-        if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email already exists");
+        // Check for existing username
+        if (userRepository.existsByUsername(username.trim())) {
+            throw new IllegalArgumentException(
+                    "Username '" + username + "' is already taken. Please choose a different username.");
+        }
+
+        // Check for existing email
+        if (userRepository.existsByEmail(email.trim().toLowerCase())) {
+            throw new IllegalArgumentException("Email address '" + email
+                    + "' is already registered. Please use a different email or try signing in.");
         }
 
         User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
+        user.setUsername(username.trim());
+        user.setEmail(email.trim().toLowerCase());
         user.setPassword(passwordEncoder.encode(password));
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+        user.setFirstName(firstName != null ? firstName.trim() : null);
+        user.setLastName(lastName != null ? lastName.trim() : null);
         user.setEmailVerified(false);
         user.setAccountEnabled(true);
         user.setRole(User.Role.USER);

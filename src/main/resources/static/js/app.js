@@ -81,20 +81,30 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Password strength indicator
-function checkPasswordStrength(password) {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
+// HTMX form validation helpers
+document.addEventListener('htmx:responseError', function (event) {
+    console.error('HTMX validation failed:', event.detail);
+});
 
-    const strengthBar = document.getElementById('password-strength');
-    if (strengthBar) {
-        const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500'];
-        const widths = ['w-1/5', 'w-2/5', 'w-3/5', 'w-4/5', 'w-full'];
-
-        strengthBar.className = `h-2 transition-all duration-300 ${colors[strength - 1] || 'bg-gray-300'} ${widths[strength - 1] || 'w-0'}`;
+// Clear validation when user starts typing again
+document.addEventListener('htmx:beforeRequest', function (event) {
+    // Show loading state for validation endpoints
+    if (event.detail.elt.hasAttribute('hx-indicator')) {
+        const indicatorId = event.detail.elt.getAttribute('hx-indicator');
+        const indicator = document.querySelector(indicatorId);
+        if (indicator) {
+            indicator.style.display = 'block';
+        }
     }
-} 
+});
+
+document.addEventListener('htmx:afterRequest', function (event) {
+    // Hide loading state after validation
+    if (event.detail.elt.hasAttribute('hx-indicator')) {
+        const indicatorId = event.detail.elt.getAttribute('hx-indicator');
+        const indicator = document.querySelector(indicatorId);
+        if (indicator) {
+            indicator.style.display = 'none';
+        }
+    }
+}); 

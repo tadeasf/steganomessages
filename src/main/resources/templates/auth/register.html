@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Steganomessages</title>
+    <title>Sign Up - SteganoMessages</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -97,9 +97,24 @@
                             Username *
                         </label>
                         <input id="username" name="username" type="text" autocomplete="username" required
-                            th:field="*{username}"
+                            th:field="*{username}" hx-post="/auth/check-username" hx-target="#username-feedback"
+                            hx-trigger="keyup changed delay:500ms" hx-indicator="#username-loading"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Choose a username">
+                        <div id="username-loading" class="htmx-indicator text-xs text-gray-500 mt-1">
+                            <span class="flex items-center">
+                                <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-gray-500"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                Checking username...
+                            </span>
+                        </div>
+                        <div id="username-feedback"></div>
                         <div th:if="${#fields.hasErrors('username')}" class="text-red-500 text-xs mt-1">
                             <span th:errors="*{username}"></span>
                         </div>
@@ -110,8 +125,24 @@
                             Email Address *
                         </label>
                         <input id="email" name="email" type="email" autocomplete="email" required th:field="*{email}"
+                            hx-post="/auth/check-email" hx-target="#email-feedback"
+                            hx-trigger="keyup changed delay:500ms" hx-indicator="#email-loading"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Enter your email address">
+                        <div id="email-loading" class="htmx-indicator text-xs text-gray-500 mt-1">
+                            <span class="flex items-center">
+                                <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-gray-500"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                Checking email...
+                            </span>
+                        </div>
+                        <div id="email-feedback"></div>
                         <div th:if="${#fields.hasErrors('email')}" class="text-red-500 text-xs mt-1">
                             <span th:errors="*{email}"></span>
                         </div>
@@ -122,10 +153,25 @@
                             Password *
                         </label>
                         <input id="password" name="password" type="password" autocomplete="new-password" required
-                            th:field="*{password}" onkeyup="checkPasswordStrength(this.value)"
+                            th:field="*{password}" hx-post="/auth/validate-password" hx-target="#password-feedback"
+                            hx-trigger="keyup changed delay:300ms" hx-include="#confirmPassword"
+                            hx-indicator="#password-loading"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Create a password (min 6 characters)">
-                        <div id="password-strength" class="h-2 mt-1 bg-gray-300 transition-all duration-300"></div>
+                        <div id="password-loading" class="htmx-indicator text-xs text-gray-500 mt-1">
+                            <span class="flex items-center">
+                                <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-gray-500"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                Validating password...
+                            </span>
+                        </div>
+                        <div id="password-feedback"></div>
                         <div th:if="${#fields.hasErrors('password')}" class="text-red-500 text-xs mt-1">
                             <span th:errors="*{password}"></span>
                         </div>
@@ -136,7 +182,8 @@
                             Confirm Password *
                         </label>
                         <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
-                            required th:field="*{confirmPassword}"
+                            required th:field="*{confirmPassword}" hx-post="/auth/validate-password"
+                            hx-target="#password-feedback" hx-trigger="keyup changed delay:300ms" hx-include="#password"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Confirm your password">
                         <div th:if="${#fields.hasErrors('confirmPassword')}" class="text-red-500 text-xs mt-1">
