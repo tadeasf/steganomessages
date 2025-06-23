@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: 'postgres:${POSTGRES_VERSION:-16}'
+    container_name: steganomessages-postgres
+    environment:
+      - 'POSTGRES_DB=${DB_NAME:-steganomessages}'
+      - 'POSTGRES_USER=${DB_USERNAME:-steganomessages_user}'
+      - 'POSTGRES_PASSWORD=${DB_PASSWORD:-steganomessages_pass}'
+    ports:
+      - '${DB_PORT:-5434}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-steganomessages_user} -d ${DB_NAME:-steganomessages}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - steganomessages-network
+
+  app:
+    build: .
+    container_name: steganomessages-app
+    environment:
+      - 'SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-docker}'
+      - 'DB_HOST=postgres'
+      - 'DB_PORT=5432'
+      - 'DB_NAME=${DB_NAME:-steganomessages}'
+      - 'DB_USERNAME=${DB_USERNAME:-steganomessages_user}'
+      - 'DB_PASSWORD=${DB_PASSWORD:-steganomessages_pass}'
+      - 'APP_URL=${APP_URL:-http://localhost:8090}'
+      - 'MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}'
+      - 'MAIL_PORT=${MAIL_PORT:-587}'
+      - 'MAIL_USERNAME=${MAIL_USERNAME:-your-email@gmail.com}'
+      - 'MAIL_PASSWORD=${MAIL_PASSWORD:-your-app-password}'
+      - 'JWT_SECRET=${JWT_SECRET:-your-jwt-secret-key-here}'
+      - 'UPLOAD_DIRECTORY=/app/uploads'
+      - 'SERVER_PORT=8090'
+    ports:
+      - '${APP_PORT:-8090}:8090'
+    volumes:
+      - app_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - steganomessages-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  app_uploads:
+
+networks:
+  steganomessages-network:
+    driver: bridge

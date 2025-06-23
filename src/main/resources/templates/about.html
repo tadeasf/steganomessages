@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Steganomessages</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    borderRadius: {
+                        'none': '0',
+                        DEFAULT: '0'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- HTMX -->
+    <script th:src="@{/webjars/htmx.org/2.0.4/dist/htmx.min.js}"></script>
+
+    <!-- Custom CSS -->
+    <style>
+        * {
+            border-radius: 0 !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                    About Steganomessages
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
+                    Learn about our secure steganography platform and how we protect your hidden communications.
+                </p>
+            </div>
+
+            <!-- What is Steganography -->
+            <div class="bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">What is Steganography?</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                    Steganography is the practice of concealing information within another medium. Unlike cryptography,
+                    which scrambles data,
+                    steganography hides the very existence of the secret message. Our platform uses <strong>DCT
+                        (Discrete Cosine Transform)</strong>
+                    steganography to embed messages within images.
+                </p>
+                <p class="text-gray-600 dark:text-gray-400">
+                    DCT steganography works by modifying the frequency domain coefficients of 8x8 image blocks,
+                    specifically targeting
+                    mid-frequency coefficients for optimal imperceptibility and robustness. This approach provides
+                    superior resistance
+                    to compression and image processing compared to traditional spatial domain methods.
+                </p>
+            </div>
+
+            <!-- How It Works -->
+            <div class="bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">How Our Platform Works</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Embedding Process -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Message Embedding</h3>
+                        <ol class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                            <li class="flex items-start">
+                                <span
+                                    class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</span>
+                                Upload your cover image (PNG, JPG, BMP, TIFF)
+                            </li>
+                            <li class="flex items-start">
+                                <span
+                                    class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</span>
+                                Enter your secret message (up to image capacity)
+                            </li>
+                            <li class="flex items-start">
+                                <span
+                                    class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</span>
+                                Choose visibility and security settings
+                            </li>
+                            <li class="flex items-start">
+                                <span
+                                    class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">4</span>
+                                Download your steganographic image
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Extraction Process -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Message Extraction</h3>
+                        <ol class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                            <li class="flex items-start">
+                                <span
+                                    class="bg-green-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</span>
+                                Upload an image containing a hidden message
+                            </li>
+                            <li class="flex items-start">
+                                <span
+                                    class="bg-green-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</span>
+                                Our system analyzes the image using DCT frequency domain
+                            </li>
+                            <li class="flex items-start">
+                                <span
+                                    class="bg-green-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</span>
+                                The hidden message is reconstructed from DCT coefficients
+                            </li>
+                            <li class="flex items-start">
+                                <span
+                                    class="bg-green-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">4</span>
+                                View and copy your extracted message
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Features -->
+            <div class="bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Security & Privacy</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-green-600 mr-3 mt-1" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                </path>
+                            </svg>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white">Password Protection</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Optional password protection for
+                                    shared messages using BCrypt encryption</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-green-600 mr-3 mt-1" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white">Secure Processing</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">All image processing happens
+                                    server-side with temporary file cleanup</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-green-600 mr-3 mt-1" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white">Message Expiration</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Set expiration dates for automatic
+                                    message and file cleanup</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-green-600 mr-3 mt-1" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white">Account Security</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Email verification, secure
+                                    authentication, and session management</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Specifications -->
+            <div class="bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Technical Specifications</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Supported Formats</h3>
+                        <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                            <li>• JPEG/JPG</li>
+                            <li>• PNG</li>
+                            <li>• BMP</li>
+                            <li>• TIFF</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">File Limits</h3>
+                        <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                            <li>• Max file size: 50MB</li>
+                            <li>• Message length: Depends on image size</li>
+                            <li>• UTF-8 character encoding</li>
+                            <li>• Automatic capacity calculation</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Technology Stack</h3>
+                        <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                            <li>• Spring Boot 3.x</li>
+                            <li>• Java BufferedImage API</li>
+                            <li>• DCT Steganography</li>
+                            <li>• HTMX for interactivity</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Use Cases -->
+            <div class="bg-blue-50 dark:bg-gray-800 p-8 border border-blue-200 dark:border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Common Use Cases</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Personal</h3>
+                        <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                            <li>• Private messaging</li>
+                            <li>• Digital watermarking</li>
+                            <li>• Copyright protection</li>
+                            <li>• Secret sharing with friends</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Professional</h3>
+                        <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                            <li>• Confidential communications</li>
+                            <li>• Data integrity verification</li>
+                            <li>• Digital forensics research</li>
+                            <li>• Educational demonstrations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+
+</html>

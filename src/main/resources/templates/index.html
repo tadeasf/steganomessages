@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Steganomessages</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    borderRadius: {
+                        'none': '0',
+                        DEFAULT: '0'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- HTMX -->
+    <script th:src="@{/webjars/htmx.org/2.0.4/dist/htmx.min.js}"></script>
+
+    <!-- Custom CSS -->
+    <style>
+        * {
+            border-radius: 0 !important;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover,
+        .file-upload-area.dragover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .htmx-request {
+            opacity: 0.5;
+        }
+
+        .loading-indicator {
+            display: none;
+        }
+
+        .htmx-request .loading-indicator {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <!-- Flash Messages -->
+    <div th:if="${message != null or error != null}" class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-4">
+        <div th:if="${message != null}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 mb-4"
+            role="alert">
+            <span th:text="${message}"></span>
+        </div>
+        <div th:if="${error != null}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-4" role="alert">
+            <span th:text="${error}"></span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+                    Hide Messages in Plain Sight
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
+                    Steganomessages lets you embed secret messages within images using advanced steganography
+                    techniques.
+                    Share your hidden communications securely and privately.
+                </p>
+
+                <div sec:authorize="!isAuthenticated()" class="space-x-4">
+                    <a th:href="@{/auth/register}"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-medium">
+                        Get Started Free
+                    </a>
+                    <a th:href="@{/extract}"
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 text-lg font-medium">
+                        Try Extract Message
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions for Authenticated Users -->
+            <div sec:authorize="isAuthenticated()"
+                class="bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 p-8 mb-12">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                    Create Hidden Message
+                </h2>
+
+                <!-- Message Creation Form -->
+                <form id="create-message-form" hx-post="/api/encode" hx-target="#upload-result"
+                    hx-indicator="#upload-loading" enctype="multipart/form-data" class="space-y-6">
+
+                    <!-- CSRF Token -->
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Title Input -->
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Message Title *
+                            </label>
+                            <input type="text" id="title" name="title" required
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter a title for your hidden message">
+                        </div>
+
+                        <!-- Visibility Settings -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Visibility
+                            </label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="isPublic" value="false" checked
+                                        class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Private (only you can
+                                        see)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="isPublic" value="true"
+                                        class="text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Public (visible in
+                                        gallery)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secret Message -->
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Secret Message *
+                        </label>
+                        <textarea id="message" name="message" rows="4" required
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your secret message here..."></textarea>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Maximum length depends on image size. Larger images can hold longer messages.
+                        </p>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div>
+                        <label for="imageFile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Cover Image *
+                        </label>
+                        <div class="file-upload-area p-6 text-center">
+                            <input type="file" id="imageFile" name="imageFile" accept="image/*" required class="hidden"
+                                onchange="updateFileName(this)">
+                            <label for="imageFile" class="cursor-pointer">
+                                <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                    </path>
+                                </svg>
+                                <div class="text-gray-600 dark:text-gray-400">
+                                    <span class="font-medium">Click to upload</span> or drag and drop
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                                    PNG, JPG, BMP, TIFF up to 50MB
+                                </div>
+                            </label>
+                            <div id="file-name" class="mt-2 text-sm text-gray-600 dark:text-gray-400 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <button type="submit"
+                            class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-gray-500">
+                            <span class="loading-indicator">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                Creating...
+                            </span>
+                            <span class="default-text">Hide Message in Image</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Upload Result -->
+                <div id="upload-result" class="mt-6"></div>
+                <div id="upload-loading" class="hidden text-center py-4">
+                    <div class="text-gray-600 dark:text-gray-400">Processing your image...</div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div
+                    class="text-center p-6 bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <svg class="w-16 h-16 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                        </path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Secure & Private</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Your messages are hidden using advanced LSB steganography. No one can detect the presence of
+                        hidden content.
+                    </p>
+                </div>
+
+                <div
+                    class="text-center p-6 bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <svg class="w-16 h-16 text-green-600 mx-auto mb-4" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                        </path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Easy to Use</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Simply upload an image, type your message, and download the result. Extract messages with just a
+                        few clicks.
+                    </p>
+                </div>
+
+                <div
+                    class="text-center p-6 bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <svg class="w-16 h-16 text-purple-600 mx-auto mb-4" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z">
+                        </path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Share Safely</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Generate secure sharing links with optional password protection. Control who can access your
+                        hidden messages.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div sec:authorize="!isAuthenticated()"
+                class="text-center bg-blue-50 dark:bg-gray-800 p-8 border border-blue-200 dark:border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                    Ready to Start Hiding Messages?
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    Create your free account and begin sending secret messages through images today.
+                </p>
+                <a th:href="@{/auth/register}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-medium">
+                    Sign Up Now
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <script>
+        function updateFileName(input) {
+            const fileNameDiv = document.getElementById('file-name');
+            if (input.files && input.files.length > 0) {
+                const file = input.files[0];
+                fileNameDiv.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                fileNameDiv.classList.remove('hidden');
+            } else {
+                fileNameDiv.classList.add('hidden');
+            }
+        }
+
+        // File upload drag & drop functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileUploadAreas = document.querySelectorAll('.file-upload-area');
+
+            fileUploadAreas.forEach(area => {
+                area.addEventListener('dragover', function (e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+
+                area.addEventListener('dragleave', function (e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+
+                area.addEventListener('drop', function (e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        const fileInput = this.querySelector('input[type="file"]');
+                        if (fileInput) {
+                            fileInput.files = files;
+                            updateFileName(fileInput);
+                        }
+                    }
+                });
+            });
+        });
+
+        // Handle form submission response
+        document.body.addEventListener('htmx:afterRequest', function (event) {
+            if (event.detail.target.id === 'upload-result') {
+                if (event.detail.successful) {
+                    // Reset form on success
+                    document.getElementById('create-message-form').reset();
+                    document.getElementById('file-name').classList.add('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

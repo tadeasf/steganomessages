@@ -1,0 +1,35 @@
+# Source code and build files (not needed for pre-built JAR)
+src/
+.mvn/
+mvnw
+mvnw.cmd
+pom.xml
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Logs
+*.log
+
+# Temporary files
+.tmp/
+temp/
+
+# Keep target directory for the JAR file
+!target/*.jar 

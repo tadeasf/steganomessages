@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Shared Message: ' + ${message.title} + ' - Steganomessages'">Shared Message - Steganomessages
+    </title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    borderRadius: {
+                        'none': '0',
+                        DEFAULT: '0'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <style>
+        * {
+            border-radius: 0 !important;
+        }
+    </style>
+
+    <!-- Meta tags for sharing -->
+    <meta property="og:title" th:content="'Shared Steganographic Message: ' + ${message.title}">
+    <meta property="og:description" content="A hidden message embedded in an image using steganography">
+    <meta property="og:type" content="website">
+    <meta property="og:url" th:content="@{${shareUrl}}">
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto max-w-4xl px-4 py-8">
+        <div class="bg-white dark:bg-gray-800 shadow-lg p-8">
+
+            <!-- Message Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    Shared Steganographic Message
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Someone has shared a hidden message with you. Download the image below to decode it.
+                </p>
+            </div>
+
+            <!-- Message Details -->
+            <div class="bg-gray-50 dark:bg-gray-700 p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Message Information</h2>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+                        <p class="text-gray-900 dark:text-white font-medium" th:text="${message.title}">Message Title
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Created</label>
+                        <p class="text-gray-900 dark:text-white"
+                            th:text="${#temporals.format(message.createdAt, 'MMM dd, yyyy HH:mm')}">Date</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File Size</label>
+                        <p class="text-gray-900 dark:text-white"
+                            th:text="${#numbers.formatDecimal(message.fileSize / 1024.0 / 1024.0, 1, 2)} + ' MB'">Size
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Downloads</label>
+                        <p class="text-gray-900 dark:text-white" th:text="${message.downloadCount}">0</p>
+                    </div>
+                </div>
+
+                <div class="mt-4" th:if="${message.passwordProtected}">
+                    <div class="flex items-center text-amber-600 dark:text-amber-400">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg>
+                        <span class="font-medium">This message is password protected</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Section -->
+            <div class="text-center mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Download Steganographic Image</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    Click the button below to download the image containing the hidden message.
+                    You can then use our decode tool to extract the secret message.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a th:href="${downloadUrl}"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        Download Image
+                    </a>
+
+                    <a th:href="@{/decode}"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                        </svg>
+                        Decode Tool
+                    </a>
+                </div>
+            </div>
+
+            <!-- How to Decode -->
+            <div class="bg-blue-50 dark:bg-blue-900 p-6">
+                <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">How to Decode the Message</h3>
+                <ol class="list-decimal list-inside space-y-2 text-blue-800 dark:text-blue-200">
+                    <li>Download the image using the button above</li>
+                    <li>Go to our <a th:href="@{/decode}" class="underline hover:text-blue-600">decode tool</a></li>
+                    <li>Upload the downloaded image</li>
+                    <li>Click "Extract Hidden Message" to reveal the secret message</li>
+                    <li th:if="${message.passwordProtected}">Enter the password if required</li>
+                </ol>
+            </div>
+
+            <!-- Create Your Own -->
+            <div class="text-center mt-8 pt-8 border-t border-gray-200 dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Create Your Own Hidden Messages
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                    Want to create and share your own steganographic messages? Join our platform!
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a th:href="@{/auth/register}"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors">
+                        Sign Up Free
+                    </a>
+                    <a th:href="@{/}"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium transition-colors">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <script>
+        // Track shared message views (could be used for analytics)
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'shared_message_view', {
+                'message_title': /*[[${message.title}]]*/ '',
+                'share_token': /*[[${message.shareToken}]]*/ ''
+            });
+        }
+    </script>
+</body>
+
+</html>
